@@ -15,7 +15,7 @@ body {
 .app {
     width: 1280px;
     height: 960px;
-    background-image: url('https://trdb.jtpn.app/bg.png');
+    background-image: url('./bg.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
