@@ -13,14 +13,19 @@
         <div class="app">
             <input type="text" id="num1" inputmode="numeric" maxlength="4" aria-label="First number" value="0">
             <input type="text" id="num2" inputmode="numeric" maxlength="4" aria-label="Second number" value="9999">
+            <button type="button" id="less">น้อยกว่า</button>
+            <button type="button" id="greater">มากกว่า</button>
             <h1 id="result">????</h1>
+            
         </div>
     </div>
 
     <script>
         const num1Input = document.getElementById('num1');
         const num2Input = document.getElementById('num2');
+        const lessButton = document.getElementById('less');
         const result = document.getElementById('result');
+        const greaterButton = document.getElementById('greater');
 
         function sanitizeInput(input) {
             input.value = input.value.replace(/\D/g, '').slice(0, 4);
@@ -61,6 +66,22 @@
             return { num1, num2 };
         }
 
+        function getMiddle({ num1, num2 }) {
+            return num1 === num2 ? num1 : Math.ceil((num1 + num2) / 2);
+        }
+
+        function syncButtons(values) {
+            if (!values) {
+                lessButton.disabled = true;
+                greaterButton.disabled = true;
+                return;
+            }
+
+            const middle = getMiddle(values);
+            lessButton.disabled = middle <= values.num1;
+            greaterButton.disabled = middle >= values.num2;
+        }
+
         function updateResult(reportValidity = false) {
             const values = validateInputs();
 
@@ -74,14 +95,15 @@
                 }
 
                 result.textContent = '????';
+                syncButtons(null);
                 return;
             }
 
-            const middle = values.num1 === values.num2
-                ? values.num1
-                : Math.ceil((values.num1 + values.num2) / 2);
+            const middle = getMiddle(values);
 
             result.textContent = String(middle);
+            syncButtons(values);
+            return values;
         }
 
         [num1Input, num2Input].forEach((input) => {
@@ -90,6 +112,28 @@
                 input.setCustomValidity('');
                 updateResult();
             });
+        });
+
+        lessButton.addEventListener('click', () => {
+            const values = updateResult(true);
+
+            if (!values || lessButton.disabled) {
+                return;
+            }
+
+            num2Input.value = String(getMiddle(values) - 1);
+            updateResult();
+        });
+
+        greaterButton.addEventListener('click', () => {
+            const values = updateResult(true);
+
+            if (!values || greaterButton.disabled) {
+                return;
+            }
+
+            num1Input.value = String(getMiddle(values) + 1);
+            updateResult();
         });
 
         updateResult();
