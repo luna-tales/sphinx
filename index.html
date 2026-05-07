@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <div class="app">
+            <input type="text" id="num1" inputmode="numeric" maxlength="4" aria-label="First number" value="0">
+            <input type="text" id="num2" inputmode="numeric" maxlength="4" aria-label="Second number" value="9999">
+            <h1 id="result">????</h1>
+        </div>
+    </div>
+
+    <script>
+        const num1Input = document.getElementById('num1');
+        const num2Input = document.getElementById('num2');
+        const result = document.getElementById('result');
+
+        function sanitizeInput(input) {
+            input.value = input.value.replace(/\D/g, '').slice(0, 4);
+        }
+
+        function validateInputs() {
+            num1Input.setCustomValidity('');
+            num2Input.setCustomValidity('');
+
+            if (num1Input.value === '') {
+                num1Input.setCustomValidity('Enter a whole number from 0 to 9999.');
+                return null;
+            }
+
+            if (num2Input.value === '') {
+                num2Input.setCustomValidity('Enter a whole number from 0 to 9999.');
+                return null;
+            }
+
+            const num1 = Number.parseInt(num1Input.value, 10);
+            const num2 = Number.parseInt(num2Input.value, 10);
+
+            if (num1 < 0 || num1 > 9999) {
+                num1Input.setCustomValidity('Enter a whole number from 0 to 9999.');
+                return null;
+            }
+
+            if (num2 < 0 || num2 > 9999) {
+                num2Input.setCustomValidity('Enter a whole number from 0 to 9999.');
+                return null;
+            }
+
+            if (num1 > num2) {
+                num2Input.setCustomValidity('num2 must be greater than or equal to num1.');
+                return null;
+            }
+
+            return { num1, num2 };
+        }
+
+        function updateResult(reportValidity = false) {
+            const values = validateInputs();
+
+            if (!values) {
+                if (reportValidity) {
+                    if (!num1Input.checkValidity()) {
+                        num1Input.reportValidity();
+                    } else {
+                        num2Input.reportValidity();
+                    }
+                }
+
+                result.textContent = '????';
+                return;
+            }
+
+            const middle = values.num1 === values.num2
+                ? values.num1
+                : Math.ceil((values.num1 + values.num2) / 2);
+
+            result.textContent = String(middle);
+        }
+
+        [num1Input, num2Input].forEach((input) => {
+            input.addEventListener('input', () => {
+                sanitizeInput(input);
+                input.setCustomValidity('');
+                updateResult();
+            });
+        });
+
+        updateResult();
+    </script>
+</body>
+</html>
